@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Telegram SecureStorage PoC</title>
+  <meta charset="UTF-8" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <h1>Telegram SecureStorage Test</h1>
+  <p id="status">Checking availability...</p>
+
+  <script>
+    const status = document.getElementById('status');
+
+    Telegram.WebApp.ready();
+
+    const isAvailable = Telegram.WebApp.secureStorage.isAvailable();
+
+    status.textContent = `secureStorage.isAvailable(): ${isAvailable}`;
+
+    // Attempt to store a secret
+    if (isAvailable) {
+      Telegram.WebApp.SecureStorage.setItem("access_token", "secret123", (err, ok) => {
+        if (err || !ok) {
+          console.error("⚠️ SecureStorage failed unexpectedly!", err);
+          status.textContent += `\n❌ setItem failed: ${err?.message || "Unknown error"}`;
+        } else {
+          status.textContent += `\n✅ setItem succeeded`;
+        }
+
+        // Check again after failure
+        const recheck = Telegram.WebApp.secureStorage.isAvailable();
+        status.textContent += `\nRe-check isAvailable(): ${recheck}`;
+      });
+    } else {
+      console.warn("SecureStorage not available — as expected");
+    }
+  </script>
+</body>
+</html>
